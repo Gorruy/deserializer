@@ -1,0 +1,21 @@
+# do serializer.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 08:36:56 on Dec 30,2023
+# vlog -work work serializer.vo 
+# -- Compiling module serializer
+# 
+# Top level modules:
+# 	serializer
+# End time: 08:36:56 on Dec 30,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 08:36:56 on Dec 30,2023
+# vlog -work work Waveform.vwf.vt 
+# -- Compiling module serializer_vlg_vec_tst
+# ** Error: Waveform.vwf.vt(172): (vlog-2730) Undefined variable: 'data_val_i'.
+# ** Error: Waveform.vwf.vt(180): (vlog-2730) Undefined variable: 'srst_i'.
+# End time: 08:36:56 on Dec 30,2023, Elapsed time: 0:00:00
+# Errors: 2, Warnings: 0
+# ** Error: /home/vladimir/intelFPGA_lite/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Executing ONERROR command at macro ./serializer.do line 4
