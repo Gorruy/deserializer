@@ -44,10 +44,10 @@ module top_tb;
     .data_mod_i     ( data_mod       )
   );
 
-  mailbox #( logic [DATA_BUS_WIDTH - 1:0] ) input_data     = new(1);
-  mailbox #( logic [DATA_BUS_WIDTH - 1:0] ) output_data    = new(1);
-  mailbox #( logic [DATA_BUS_WIDTH - 1:0] ) generated_data = new(1);
-  mailbox #( logic [DATA_MOD_WIDTH - 1:0] ) counter        = new(1);
+  mailbox #( logic [DATA_BUS_WIDTH - 1:0]        ) input_data     = new(1);
+  mailbox #( logic [DATA_BUS_WIDTH - 1:0]        ) output_data    = new(1);
+  mailbox #( logic                               ) generated_data = new(DATA_BUS_WIDTH);
+  mailbox #( logic [$clog(DATA_BUS_WIDTH) - 1:0] ) counter        = new(1);
 
   function void display_error( input logic [DATA_BUS_WIDTH - 1:0] in,  
                                input logic [DATA_BUS_WIDTH - 1:0] out,  
@@ -60,7 +60,7 @@ module top_tb;
   endfunction
 
   task raise_transaction_strobes( logic [DATA_BUS_WIDTH - 1:0] data_to_send,
-                                  logic [DATA_MOD_WIDTH - 1:0] counter
+                                  logic [$clog(DATA_BUS_WIDTH) - 1:0] counter
                                 ); 
     
     // data comes at random moment
@@ -77,18 +77,15 @@ module top_tb;
   endtask
 
   task compare_data( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) input_data,
-                     mailbox #( logic [DATA_BUS_WIDTH - 1:0]) output_data,
-                     mailbox #( logic [DATA_MOD_WIDTH - 1:0]) size
+                     mailbox #( logic [DATA_BUS_WIDTH - 1:0]) output_data
                    );
     
-    logic [DATA_MOD_WIDTH - 1:0] tr_size;
     logic [DATA_BUS_WIDTH - 1:0] i_data, o_data;
 
     output_data.get( o_data );
-    size.get( tr_size );
     input_data.get( i_data );
     
-    for ( int i = DATA_BUS_WIDTH; i > ( tr_size == 0 ? 0: DATA_BUS_WIDTH - tr_size ); i-- ) begin
+    for ( int i = DATA_BUS_WIDTH; i > 0; i-- ) begin
       if ( i_data[i - 1] != o_data[i - 1] )
         begin
           display_error( i_data, o_data, tr_size );
@@ -99,35 +96,30 @@ module top_tb;
     
   endtask
 
-  task generate_transaction ( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) generated_data,
-                              mailbox #( logic [DATA_MOD_WIDTH - 1:0]) size
-                            );
+  task generate_transaction ( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) generated_data );
     
     logic [DATA_BUS_WIDTH - 1:0] data_to_send;
-    logic [DATA_MOD_WIDTH - 1:0] size_to_send;
 
     data_to_send = $urandom_range( DATA_BUS_WIDTH**2 - 1, 'b1111111111 );
-    size_to_send = $urandom_range( DATA_MOD_WIDTH**2 - 1, 3 ) * $urandom_range(1, 0);
 
     generated_data.put(data_to_send);
-    size.put(size_to_send);
 
   endtask
 
   task send_data ( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) input_data,
                    mailbox #( logic [DATA_BUS_WIDTH - 1:0]) generated_data,
-                   mailbox #( logic [DATA_MOD_WIDTH - 1:0]) size
+                   mailbox #( logic [DATA_MOD_WIDTH - 1:0]) counter
                  );
+
+    logic [DATA_BUS_WIDTH - 1:0] data_to_send;
     
     for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
-      logic [DATA_BUS_WIDTH - 1:0] data_to_send;
-      logic [DATA_BUS_WIDTH - 1:0] size_to_send;
-
       generated_data.get( data_to_send );
       input_data.put( data_to_send );
       size.peek( size_to_send );
 
       raise_transaction_strobes( data_to_send, size_to_send );
+      counter += 1;
     end
 
   endtask
