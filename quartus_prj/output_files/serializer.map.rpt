@@ -1,5 +1,5 @@
 Analysis & Synthesis report for serializer
-Fri Jan  5 08:50:31 2024
+Fri Jan  5 10:18:17 2024
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -10,16 +10,7 @@ Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
   2. Analysis & Synthesis Summary
   3. Analysis & Synthesis Settings
   4. Parallel Compilation
-  5. Analysis & Synthesis Source Files Read
-  6. Analysis & Synthesis Resource Usage Summary
-  7. Analysis & Synthesis Resource Utilization by Entity
-  8. Registers Removed During Synthesis
-  9. Removed Registers Triggering Further Register Optimizations
- 10. General Register Statistics
- 11. Parameter Settings for User Entity Instance: serializer:serializer
- 12. Post-Synthesis Netlist Statistics for Top Partition
- 13. Elapsed Time Per Partition
- 14. Analysis & Synthesis Messages
+  5. Analysis & Synthesis Messages
 
 
 
@@ -42,27 +33,22 @@ refer to the applicable agreement for further details.
 
 
 
-+-------------------------------------------------------------------------------+
-; Analysis & Synthesis Summary                                                  ;
-+---------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status     ; Successful - Fri Jan  5 08:50:31 2024       ;
-; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
-; Revision Name                   ; serializer                                  ;
-; Top-level Entity Name           ; serializer_top                              ;
-; Family                          ; Cyclone V                                   ;
-; Logic utilization (in ALMs)     ; N/A                                         ;
-; Total registers                 ; 0                                           ;
-; Total pins                      ; 1                                           ;
-; Total virtual pins              ; 25                                          ;
-; Total block memory bits         ; 0                                           ;
-; Total DSP Blocks                ; 0                                           ;
-; Total HSSI RX PCSs              ; 0                                           ;
-; Total HSSI PMA RX Deserializers ; 0                                           ;
-; Total HSSI TX PCSs              ; 0                                           ;
-; Total HSSI PMA TX Serializers   ; 0                                           ;
-; Total PLLs                      ; 0                                           ;
-; Total DLLs                      ; 0                                           ;
-+---------------------------------+---------------------------------------------+
++---------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                              ;
++-----------------------------+---------------------------------------------+
+; Analysis & Synthesis Status ; Failed - Fri Jan  5 10:18:17 2024           ;
+; Quartus Prime Version       ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
+; Revision Name               ; serializer                                  ;
+; Top-level Entity Name       ; serializer_top                              ;
+; Family                      ; Cyclone V                                   ;
+; Logic utilization (in ALMs) ; N/A until Partition Merge                   ;
+; Total registers             ; N/A until Partition Merge                   ;
+; Total pins                  ; N/A until Partition Merge                   ;
+; Total virtual pins          ; N/A until Partition Merge                   ;
+; Total block memory bits     ; N/A until Partition Merge                   ;
+; Total PLLs                  ; N/A until Partition Merge                   ;
+; Total DLLs                  ; N/A until Partition Merge                   ;
++-----------------------------+---------------------------------------------+
 
 
 +---------------------------------------------------------------------------------------------------------------------------+
@@ -169,256 +155,26 @@ refer to the applicable agreement for further details.
 +----------------------------+-------------+
 
 
-+----------------------------------------------------------------------------------------------------------------------------------------------------+
-; Analysis & Synthesis Source Files Read                                                                                                             ;
-+----------------------------------+-----------------+------------------------------+------------------------------------------------------+---------+
-; File Name with User-Entered Path ; Used in Netlist ; File Type                    ; File Name with Absolute Path                         ; Library ;
-+----------------------------------+-----------------+------------------------------+------------------------------------------------------+---------+
-; ../rtl/serializer_top.sv         ; yes             ; User SystemVerilog HDL File  ; /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv ;         ;
-; ../rtl/serializer.sv             ; yes             ; User SystemVerilog HDL File  ; /home/vladimir/NTC/serialaizer/rtl/serializer.sv     ;         ;
-+----------------------------------+-----------------+------------------------------+------------------------------------------------------+---------+
-
-
-+-----------------------------------------------------+
-; Analysis & Synthesis Resource Usage Summary         ;
-+---------------------------------------------+-------+
-; Resource                                    ; Usage ;
-+---------------------------------------------+-------+
-; Estimate of Logic utilization (ALMs needed) ; 13    ;
-;                                             ;       ;
-; Combinational ALUT usage for logic          ; 0     ;
-;     -- 7 input functions                    ; 0     ;
-;     -- 6 input functions                    ; 0     ;
-;     -- 5 input functions                    ; 0     ;
-;     -- 4 input functions                    ; 0     ;
-;     -- <=3 input functions                  ; 0     ;
-;                                             ;       ;
-; Dedicated logic registers                   ; 0     ;
-;                                             ;       ;
-; Virtual pins                                ; 25    ;
-; I/O pins                                    ; 1     ;
-;                                             ;       ;
-; Total DSP Blocks                            ; 0     ;
-;                                             ;       ;
-; Maximum fan-out node                        ; clk_i ;
-; Maximum fan-out                             ; 1     ;
-; Total fan-out                               ; 1     ;
-; Average fan-out                             ; 0.04  ;
-+---------------------------------------------+-------+
-
-
-+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                       ;
-+----------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+---------------------+----------------+--------------+
-; Compilation Hierarchy Node ; Combinational ALUTs ; Dedicated Logic Registers ; Block Memory Bits ; DSP Blocks ; Pins ; Virtual Pins ; Full Hierarchy Name ; Entity Name    ; Library Name ;
-+----------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+---------------------+----------------+--------------+
-; |serializer_top            ; 0 (0)               ; 0 (0)                     ; 0                 ; 0          ; 1    ; 25           ; |serializer_top     ; serializer_top ; work         ;
-+----------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+---------------------+----------------+--------------+
-Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
-
-
-+---------------------------------------------------------------------------------------+
-; Registers Removed During Synthesis                                                    ;
-+-----------------------------------------+---------------------------------------------+
-; Register name                           ; Reason for Removal                          ;
-+-----------------------------------------+---------------------------------------------+
-; serializer:serializer|final_index[3]    ; Stuck at GND due to stuck port clock_enable ;
-; serializer:serializer|data_buf[0]       ; Stuck at GND due to stuck port clock_enable ;
-; data[0]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[1]       ; Stuck at GND due to stuck port clock_enable ;
-; data[1]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[2]       ; Stuck at GND due to stuck port clock_enable ;
-; data[2]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[3]       ; Stuck at GND due to stuck port clock_enable ;
-; data[3]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[4]       ; Stuck at GND due to stuck port clock_enable ;
-; data[4]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[5]       ; Stuck at GND due to stuck port clock_enable ;
-; data[5]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[6]       ; Stuck at GND due to stuck port clock_enable ;
-; data[6]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[7]       ; Stuck at GND due to stuck port clock_enable ;
-; data[7]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[8]       ; Stuck at GND due to stuck port clock_enable ;
-; data[8]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[9]       ; Stuck at GND due to stuck port clock_enable ;
-; data[9]                                 ; Lost fanout                                 ;
-; serializer:serializer|data_buf[10]      ; Stuck at GND due to stuck port clock_enable ;
-; data[10]                                ; Lost fanout                                 ;
-; serializer:serializer|data_buf[11]      ; Stuck at GND due to stuck port clock_enable ;
-; data[11]                                ; Lost fanout                                 ;
-; serializer:serializer|data_buf[12]      ; Stuck at GND due to stuck port clock_enable ;
-; data[12]                                ; Lost fanout                                 ;
-; serializer:serializer|data_buf[13]      ; Stuck at GND due to stuck port clock_enable ;
-; data[13]                                ; Lost fanout                                 ;
-; serializer:serializer|data_buf[14]      ; Stuck at GND due to stuck port clock_enable ;
-; data[14]                                ; Lost fanout                                 ;
-; serializer:serializer|data_buf[15]      ; Stuck at GND due to stuck port clock_enable ;
-; data[15]                                ; Lost fanout                                 ;
-; serializer:serializer|final_index[0..2] ; Stuck at GND due to stuck port clock_enable ;
-; data_mod[0..3]                          ; Lost fanout                                 ;
-; ser_data_o~reg0                         ; Stuck at GND due to stuck port data_in      ;
-; serializer:serializer|state             ; Stuck at GND due to stuck port data_in      ;
-; srst                                    ; Lost fanout                                 ;
-; serializer:serializer|counter[0..3]     ; Lost fanout                                 ;
-; ser_data_val_o~reg0                     ; Stuck at GND due to stuck port data_in      ;
-; busy_o~reg0                             ; Stuck at GND due to stuck port data_in      ;
-; Total Number of Removed Registers = 49  ;                                             ;
-+-----------------------------------------+---------------------------------------------+
-
-
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Removed Registers Triggering Further Register Optimizations                                                                                                    ;
-+--------------------------------------+--------------------------------+----------------------------------------------------------------------------------------+
-; Register name                        ; Reason for Removal             ; Registers Removed due to This Register                                                 ;
-+--------------------------------------+--------------------------------+----------------------------------------------------------------------------------------+
-; serializer:serializer|final_index[3] ; Stuck at GND                   ; data_mod[0], data_mod[1], data_mod[2], data_mod[3], serializer:serializer|state, srst, ;
-;                                      ; due to stuck port clock_enable ; serializer:serializer|counter[3], serializer:serializer|counter[2],                    ;
-;                                      ;                                ; serializer:serializer|counter[0], serializer:serializer|counter[1],                    ;
-;                                      ;                                ; ser_data_val_o~reg0, busy_o~reg0                                                       ;
-; serializer:serializer|data_buf[0]    ; Stuck at GND                   ; data[0], ser_data_o~reg0                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[14]   ; Stuck at GND                   ; data[14]                                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[15]   ; Stuck at GND                   ; data[15]                                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[13]   ; Stuck at GND                   ; data[13]                                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[12]   ; Stuck at GND                   ; data[12]                                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[11]   ; Stuck at GND                   ; data[11]                                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[10]   ; Stuck at GND                   ; data[10]                                                                               ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[9]    ; Stuck at GND                   ; data[9]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[8]    ; Stuck at GND                   ; data[8]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[7]    ; Stuck at GND                   ; data[7]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[6]    ; Stuck at GND                   ; data[6]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[5]    ; Stuck at GND                   ; data[5]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[4]    ; Stuck at GND                   ; data[4]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[3]    ; Stuck at GND                   ; data[3]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[2]    ; Stuck at GND                   ; data[2]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-; serializer:serializer|data_buf[1]    ; Stuck at GND                   ; data[1]                                                                                ;
-;                                      ; due to stuck port clock_enable ;                                                                                        ;
-+--------------------------------------+--------------------------------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------+
-; General Register Statistics                          ;
-+----------------------------------------------+-------+
-; Statistic                                    ; Value ;
-+----------------------------------------------+-------+
-; Total registers                              ; 0     ;
-; Number of registers using Synchronous Clear  ; 0     ;
-; Number of registers using Synchronous Load   ; 0     ;
-; Number of registers using Asynchronous Clear ; 0     ;
-; Number of registers using Asynchronous Load  ; 0     ;
-; Number of registers using Clock Enable       ; 0     ;
-; Number of registers using Preset             ; 0     ;
-+----------------------------------------------+-------+
-
-
-+--------------------------------------------------------------------+
-; Parameter Settings for User Entity Instance: serializer:serializer ;
-+----------------+-------+-------------------------------------------+
-; Parameter Name ; Value ; Type                                      ;
-+----------------+-------+-------------------------------------------+
-; DATA_BUS_WIDTH ; 16    ; Signed Integer                            ;
-; DATA_MOD_WIDTH ; 4     ; Signed Integer                            ;
-+----------------+-------+-------------------------------------------+
-Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
-
-
-+-----------------------------------------------------+
-; Post-Synthesis Netlist Statistics for Top Partition ;
-+-----------------------+-----------------------------+
-; Type                  ; Count                       ;
-+-----------------------+-----------------------------+
-; arriav_lcell_comb     ; 1                           ;
-;     normal            ; 1                           ;
-;         0 data inputs ; 1                           ;
-; boundary_port         ; 26                          ;
-;                       ;                             ;
-; Max LUT depth         ; 0.00                        ;
-; Average LUT depth     ; 0.00                        ;
-+-----------------------+-----------------------------+
-
-
-+-------------------------------+
-; Elapsed Time Per Partition    ;
-+----------------+--------------+
-; Partition Name ; Elapsed Time ;
-+----------------+--------------+
-; Top            ; 00:00:00     ;
-+----------------+--------------+
-
-
 +-------------------------------+
 ; Analysis & Synthesis Messages ;
 +-------------------------------+
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Fri Jan  5 08:50:18 2024
+    Info: Processing started: Fri Jan  5 10:18:04 2024
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off serializer -c serializer
 Info (20030): Parallel compilation is enabled and will use 8 of the 8 processors detected
-Info (12021): Found 1 design units, including 1 entities, in source file /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv
-    Info (12023): Found entity 1: serializer_top File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 1
-Info (12021): Found 1 design units, including 1 entities, in source file /home/vladimir/NTC/serialaizer/rtl/serializer.sv
-    Info (12023): Found entity 1: serializer File: /home/vladimir/NTC/serialaizer/rtl/serializer.sv Line: 1
-Info (12127): Elaborating entity "serializer_top" for the top level hierarchy
-Info (12128): Elaborating entity "serializer" for hierarchy "serializer:serializer" File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 46
-Warning (13024): Output pins are stuck at VCC or GND
-    Warning (13410): Pin "ser_data_o" is stuck at GND File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 9
-    Warning (13410): Pin "ser_data_val_o" is stuck at GND File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 10
-    Warning (13410): Pin "busy_o" is stuck at GND File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 12
-Info (17049): 25 registers lost all their fanouts during netlist optimizations.
-Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
-    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
-Info (15717): Design contains 25 virtual pins; timing numbers associated with paths containing virtual pins are estimates
-    Info (15718): Pin "data_i[0]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[1]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[2]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[3]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[4]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[5]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[6]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[7]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[8]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[9]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[10]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[11]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[12]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[13]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[14]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_i[15]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 5
-    Info (15718): Pin "data_mod_i[0]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 6
-    Info (15718): Pin "data_mod_i[1]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 6
-    Info (15718): Pin "data_mod_i[2]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 6
-    Info (15718): Pin "data_mod_i[3]" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 6
-    Info (15718): Pin "data_val_i" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 7
-    Info (15719): Pin "ser_data_o" is virtual output pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 9
-    Info (15719): Pin "ser_data_val_o" is virtual output pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 10
-    Info (15719): Pin "busy_o" is virtual output pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 12
-    Info (15718): Pin "srst_i" is virtual input pin File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 3
-Warning (21074): Design contains 1 input pin(s) that do not drive logic
-    Warning (15610): No output dependent on input pin "clk_i" File: /home/vladimir/NTC/serialaizer/rtl/serializer_top.sv Line: 2
-Info (21057): Implemented 26 device resources after synthesis - the final resource count might be different
-    Info (21058): Implemented 1 input pins
-    Info (21059): Implemented 0 output pins
-    Info (21061): Implemented 25 logic cells
-Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 6 warnings
-    Info: Peak virtual memory: 971 megabytes
-    Info: Processing ended: Fri Jan  5 08:50:31 2024
-    Info: Elapsed time: 00:00:13
-    Info: Total CPU time (on all processors): 00:00:32
+Error (10170): Verilog HDL syntax error at deserializer_top.sv(9) near text: ")";  expecting a direction. Check for and fix any syntax errors that appear immediately before or at the specified keyword. The Intel FPGA Knowledge Database contains many articles with specific details on how to resolve this error. Visit the Knowledge Database at https://www.altera.com/support/support-resources/knowledge-base/search.html and search for this specific error message number. File: /home/vladimir/NTC/deserializer/rtl/deserializer_top.sv Line: 9
+Warning (10275): Verilog HDL Module Instantiation warning at deserializer_top.sv(37): ignored dangling comma in List of Port Connections File: /home/vladimir/NTC/deserializer/rtl/deserializer_top.sv Line: 37
+Error (10112): Ignored design unit "deserializer_top" at deserializer_top.sv(1) due to previous errors File: /home/vladimir/NTC/deserializer/rtl/deserializer_top.sv Line: 1
+Info (12021): Found 0 design units, including 0 entities, in source file /home/vladimir/NTC/deserializer/rtl/deserializer_top.sv
+Error (10170): Verilog HDL syntax error at deserializer.sv(14) near text: ")";  expecting a direction. Check for and fix any syntax errors that appear immediately before or at the specified keyword. The Intel FPGA Knowledge Database contains many articles with specific details on how to resolve this error. Visit the Knowledge Database at https://www.altera.com/support/support-resources/knowledge-base/search.html and search for this specific error message number. File: /home/vladimir/NTC/deserializer/rtl/deserializer.sv Line: 14
+Error (10112): Ignored design unit "deserializer" at deserializer.sv(1) due to previous errors File: /home/vladimir/NTC/deserializer/rtl/deserializer.sv Line: 1
+Info (12021): Found 0 design units, including 0 entities, in source file /home/vladimir/NTC/deserializer/rtl/deserializer.sv
+Error: Quartus Prime Analysis & Synthesis was unsuccessful. 4 errors, 1 warning
+    Error: Peak virtual memory: 917 megabytes
+    Error: Processing ended: Fri Jan  5 10:18:17 2024
+    Error: Elapsed time: 00:00:13
+    Error: Total CPU time (on all processors): 00:00:31
 
 
