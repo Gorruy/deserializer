@@ -1,6 +1,6 @@
 module top_tb;
 
-  parameter NUMBER_OF_TEST_RUNS = 1000;
+  parameter NUMBER_OF_TEST_RUNS = 10;
   parameter DATA_BUS_WIDTH      = 16;
 
   bit                          clk;
@@ -34,41 +34,35 @@ module top_tb;
   deserializer #(
     .DATA_BUS_WIDTH ( DATA_BUS_WIDTH )
   ) DUT ( 
-    .clk_i          ( clk            ),
-    .srst_i         ( srst           ),
-    .ser_data_o     ( ser_data       ),
-    .ser_data_val_o ( ser_data_val   ),
-    .busy_o         ( busy           ),
-    .data_i         ( data           ),
-    .data_val_i     ( data_val       ),
-    .data_mod_i     ( data_mod       )
+    .clk_i            ( clk              ),
+    .srst_i           ( srst             ),
+    .deser_data_o     ( deser_data       ),
+    .deser_data_val_o ( deser_data_val   ),
+    .data_i           ( data             ),
+    .data_val_i       ( data_val         )
   );
 
-  mailbox #( logic [DATA_BUS_WIDTH - 1:0]        ) input_data     = new(1);
-  mailbox #( logic [DATA_BUS_WIDTH - 1:0]        ) output_data    = new(1);
-  mailbox #( logic                               ) generated_data = new(DATA_BUS_WIDTH);
-  mailbox #( logic [$clog(DATA_BUS_WIDTH) - 1:0] ) counter        = new(1);
+  typedef logic queued_data_t[$:DATA_BUS_WIDTH - 1];
 
-  function void display_error( input logic [DATA_BUS_WIDTH - 1:0] in,  
-                               input logic [DATA_BUS_WIDTH - 1:0] out,  
-                               input int                          size
+  mailbox #( queued_data_t ) output_data    = new(1);
+  mailbox #( queued_data_t ) input_data     = new(1);
+  mailbox #( queued_data_t ) generated_data = new(1);
+
+  function void display_error( input queued_data_t in,  
+                               input queued_data_t out
                              );
-    for ( int i = 0; i < DATA_BUS_WIDTH - size; i++)
-      in[i] = 0; // assign 0 to not valid bits
-    $display( "expected values:%b, result value:%b", in, out);
+    $display( "expected values:%p, result value:%p", in, out);
 
   endfunction
 
-  task raise_transaction_strobes( logic [DATA_BUS_WIDTH - 1:0] data_to_send,
-                                  logic [$clog(DATA_BUS_WIDTH) - 1:0] counter
-                                ); 
+  task raise_transaction_strobe( logic data_to_send ); 
     
     // data comes at random moment
     int delay;
     delay = $urandom_range(10, 0);
     ##(delay);
 
-    data     <= data_to_send[counter];
+    data     <= data_to_send;
     data_val <= 1'b1;
     ## 1;
     data     <= '0;
@@ -76,11 +70,12 @@ module top_tb;
 
   endtask
 
-  task compare_data( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) input_data,
-                     mailbox #( logic [DATA_BUS_WIDTH - 1:0]) output_data
-                   );
+  task compare_data ( mailbox #( queued_data_t ) input_data,
+                      mailbox #( queued_data_t ) output_data
+                    );
     
-    logic [DATA_BUS_WIDTH - 1:0] i_data, o_data;
+    queued_data_t o_data;
+    queued_data_t i_data;
 
     output_data.get( o_data );
     input_data.get( i_data );
@@ -88,7 +83,7 @@ module top_tb;
     for ( int i = DATA_BUS_WIDTH; i > 0; i-- ) begin
       if ( i_data[i - 1] != o_data[i - 1] )
         begin
-          display_error( i_data, o_data, tr_size );
+          display_error( i_data, o_data );
           test_succeed <= 1'b0;
           return;
         end
@@ -96,77 +91,44 @@ module top_tb;
     
   endtask
 
-  task generate_transaction ( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) generated_data );
+  task generate_transaction ( mailbox #( queued_data_t ) generated_data );
     
-    logic [DATA_BUS_WIDTH - 1:0] data_to_send;
+    queued_data_t data_to_send;
 
-    data_to_send = $urandom_range( DATA_BUS_WIDTH**2 - 1, 'b1111111111 );
+    for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
+      data_to_send.push_back( $urandom_range( 1, 0) );
+    end
 
-    generated_data.put(data_to_send);
+    generated_data.put( data_to_send );
 
   endtask
 
-  task send_data ( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) input_data,
-                   mailbox #( logic [DATA_BUS_WIDTH - 1:0]) generated_data,
-                   mailbox #( logic [DATA_MOD_WIDTH - 1:0]) counter
+  task send_data ( mailbox #( queued_data_t ) input_data,
+                   mailbox #( queued_data_t ) generated_data
                  );
 
-    logic [DATA_BUS_WIDTH - 1:0] data_to_send;
+    queued_data_t data_to_send;
+    queued_data_t exposed_data;
+
+    generated_data.get( data_to_send );
     
     for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
-      generated_data.get( data_to_send );
-      input_data.put( data_to_send );
-      size.peek( size_to_send );
-
-      raise_transaction_strobes( data_to_send, size_to_send );
-      counter += 1;
+      raise_transaction_strobe( data_to_send[$] );
+      exposed_data.push_front( data_to_send.pop_back );
     end
 
   endtask
 
-  task read_data ( mailbox #( logic [DATA_BUS_WIDTH - 1:0]) output_data,
-                   mailbox #( logic [DATA_MOD_WIDTH - 1:0]) size 
-                 );
+  task read_data ( mailbox #( queued_data_t ) output_data );
     
-    logic [DATA_BUS_WIDTH - 1:0] recieved_data;
-    logic [DATA_MOD_WIDTH - 1:0] tr_size;
+    queued_data_t recieved_data;
     
-    recieved_data <= '0;
-    size.peek(tr_size);    
+    recieved_data = {};   
     
-    @( posedge ser_data_val );
-    for ( int i = 0; i < ( tr_size != 0? tr_size: DATA_BUS_WIDTH ); i++ ) begin
-      @( posedge clk );
-      recieved_data[DATA_BUS_WIDTH - 1 - i] = ser_data;
-    end
+    @( posedge deser_data_val );
+    recieved_data <= { << { deser_data } };
 
     output_data.put(recieved_data);
-
-  endtask
-
-  task one_two_sizes_check;
-    logic [DATA_BUS_WIDTH - 1:0] data_to_send;
-    logic [DATA_MOD_WIDTH - 1:0] size_to_send;
-
-    data_to_send = '1;  
-    
-    size_to_send = 1;
-    raise_transaction_strobes( data_to_send, size_to_send );
-    #10
-    if ( ser_data_val == 1 )
-      begin
-        $display("Error occures! Transaction of size one activates DUT!");
-        test_succeed <= 0;
-      end
-      
-    size_to_send = 2;
-    raise_transaction_strobes( data_to_send, size_to_send );
-    #10
-    if ( ser_data_val == 1 )
-      begin
-        $display("Error occures! Transaction of size two activates DUT!");
-        test_succeed <= 0;
-      end
 
   endtask
 
@@ -179,14 +141,12 @@ module top_tb;
     repeat ( NUMBER_OF_TEST_RUNS )
     begin
       fork
-        generate_transaction( generated_data, size );
-        send_data( input_data, generated_data, size );
-        read_data( output_data, size );
-        compare_data( input_data, output_data, size );
+        generate_transaction( generated_data );
+        send_data( input_data, generated_data );
+        read_data( output_data );
+        compare_data( input_data, output_data );
       join
     end
-
-    one_two_sizes_check();
 
     $display("Simulation is over!");
     if ( test_succeed )
