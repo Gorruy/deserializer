@@ -20,7 +20,7 @@ module deserializer_top (
     begin
       srst     <= srst_i;
       data     <= data_i;
-      data_val <= data_val; 
+      data_val <= data_val_i; 
     end 
 
   deserializer #(
