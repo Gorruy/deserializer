@@ -1,6 +1,6 @@
 module top_tb;
 
-  parameter NUMBER_OF_TEST_RUNS = 10;
+  parameter NUMBER_OF_TEST_RUNS = 100;
   parameter DATA_BUS_WIDTH      = 16;
 
   bit                          clk;
@@ -51,7 +51,7 @@ module top_tb;
   function void display_error( input queued_data_t in,  
                                input queued_data_t out
                              );
-    $display( "expected values:%p, result value:%p", in, out);
+    $display( "expected values:%p, result value:%p", in[$:0], out[$:0]);
 
   endfunction
 
@@ -95,6 +95,8 @@ module top_tb;
     
     queued_data_t data_to_send;
 
+    data_to_send = {};
+
     for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
       data_to_send.push_back( $urandom_range( 1, 0) );
     end
@@ -110,6 +112,7 @@ module top_tb;
     queued_data_t data_to_send;
     queued_data_t exposed_data;
 
+    exposed_data = {};
     generated_data.get( data_to_send );
     
     for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
@@ -117,13 +120,15 @@ module top_tb;
       exposed_data.push_front( data_to_send.pop_back );
     end
 
+    input_data.put( exposed_data );
+
   endtask
 
   task read_data ( mailbox #( queued_data_t ) output_data );
     
     queued_data_t recieved_data;
-    
-    recieved_data = {};   
+
+    recieved_data = {};
     
     @( posedge deser_data_val );
     recieved_data <= { << { deser_data } };
@@ -133,6 +138,8 @@ module top_tb;
   endtask
 
   initial begin
+    data         <= '0;
+    data_val     <= 0;
     test_succeed <= 1;
 
     $display("Simulation started!");

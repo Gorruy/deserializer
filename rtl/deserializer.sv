@@ -1,7 +1,7 @@
 module deserializer #(
-  // This module will accept parallel data
-  // and start putting serialized data at the 
-  // next posedge, starting with MSB
+  // This module will collect serial data
+  // of data bus size and put it in parallel
+  // form with first came bit as MSB
   parameter DATA_BUS_WIDTH = 16
 )(
   input  logic                        clk_i,
@@ -33,21 +33,25 @@ module deserializer #(
       next_state = state;
       case ( state )
         IDLE_S: begin
-          if (data_val_i) 
+          if ( data_val_i ) 
             next_state = WORK_S;
           else 
             next_state = IDLE_S;
         end
 
         WORK_S: begin
-          if ( counter == 1 ) 
+          if ( counter == 0 ) 
             next_state = DONE_S;
           else 
             next_state = WORK_S;
         end
 
         DONE_S: begin
-          next_state = IDLE_S;
+          // new input data came at the same moment when we expose data
+          if ( data_val_i )
+            next_state = WORK_S;
+          else
+            next_state = IDLE_S;
         end
 
         default: begin
@@ -58,7 +62,8 @@ module deserializer #(
 
   always_ff @( posedge clk_i ) 
     begin
-      if ( state == IDLE_S && data_val_i == 0 )
+      if ( state == IDLE_S && data_val_i == 1'b0 || 
+           counter == 0 )
         counter <= DATA_BUS_WIDTH - 1;
       else if ( data_val_i == 1 )
         counter <= counter - 4'b1;  
@@ -66,7 +71,7 @@ module deserializer #(
 
   always_ff @( posedge clk_i )
     begin
-      if ( data_val_i == 1'b1 )
+      if ( data_val_i == 1'b1 && counter >= 0 && counter < DATA_BUS_WIDTH )
         data_buf[counter] <= data_i;
       else if ( state == IDLE_S )
         data_buf <= '0;
