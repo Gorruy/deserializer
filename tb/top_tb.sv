@@ -48,10 +48,10 @@ module top_tb;
   mailbox #( queued_data_t ) input_data     = new(1);
   mailbox #( queued_data_t ) generated_data = new(1);
 
-  function void display_error( input queued_data_t in,  
-                               input queued_data_t out
-                             );
-    $display( "expected values:%p, result value:%p", in[$:0], out[$:0]);
+  function void display_error ( input queued_data_t in,  
+                                input queued_data_t out
+                              );
+    $display( "expected values:%p, result value:%p", in, out );
 
   endfunction
 
@@ -74,11 +74,11 @@ module top_tb;
                       mailbox #( queued_data_t ) output_data
                     );
     
-    queued_data_t o_data;
     queued_data_t i_data;
+    queued_data_t o_data;
 
-    output_data.get( o_data );
     input_data.get( i_data );
+    output_data.get( o_data );
     
     for ( int i = DATA_BUS_WIDTH; i > 0; i-- ) begin
       if ( i_data[i - 1] != o_data[i - 1] )
@@ -98,7 +98,7 @@ module top_tb;
     data_to_send = {};
 
     for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
-      data_to_send.push_back( $urandom_range( 1, 0) );
+      data_to_send.push_back( $urandom_range( 1, 0 ) );
     end
 
     generated_data.put( data_to_send );
@@ -117,7 +117,7 @@ module top_tb;
     
     for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
       raise_transaction_strobe( data_to_send[$] );
-      exposed_data.push_front( data_to_send.pop_back );
+      exposed_data.push_back( data_to_send.pop_back() );
     end
 
     input_data.put( exposed_data );
@@ -130,7 +130,7 @@ module top_tb;
 
     recieved_data = {};
     
-    @( posedge deser_data_val );
+    wait ( deser_data_val )
     recieved_data <= { << { deser_data } };
 
     output_data.put(recieved_data);
@@ -164,3 +164,4 @@ module top_tb;
 
 
 endmodule
+
