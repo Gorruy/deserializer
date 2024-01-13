@@ -63,7 +63,7 @@ module top_tb;
     ##(delay);
 
     data     <= data_to_send;
-    data_val <= 1'b1;
+    data_val <= 1;
     ## 1;
     data     <= '0;
     data_val <= '0; 
@@ -84,7 +84,7 @@ module top_tb;
       if ( i_data[i - 1] != o_data[i - 1] )
         begin
           display_error( i_data, o_data );
-          test_succeed <= 1'b0;
+          test_succeed <= 0;
           return;
         end
     end

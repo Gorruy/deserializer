@@ -15,7 +15,8 @@ module deserializer #(
 
   enum logic [1:0] { IDLE_S,
                      WORK_S,
-                     DONE_S } state, next_state;
+                     DONE_S,
+                     X='x } state, next_state;
 
   logic [DATA_BUS_WIDTH - 1:0] data_buf;
   integer                      counter;
@@ -55,23 +56,23 @@ module deserializer #(
         end
 
         default: begin
-          next_state = IDLE_S;
+          next_state = X;
         end
       endcase
     end
 
   always_ff @( posedge clk_i ) 
     begin
-      if ( state == IDLE_S && data_val_i == 1'b0 || 
+      if ( state == IDLE_S && data_val_i == 0 || 
            counter == 0 )
         counter <= DATA_BUS_WIDTH - 1;
       else if ( data_val_i == 1 )
-        counter <= counter - 4'b1;  
+        counter <= counter - 1;  
     end
 
   always_ff @( posedge clk_i )
     begin
-      if ( data_val_i == 1'b1 && counter >= 0 && counter < DATA_BUS_WIDTH )
+      if ( data_val_i == 1 && counter >= 0 && counter < DATA_BUS_WIDTH )
         data_buf[counter] <= data_i;
       else if ( state == IDLE_S )
         data_buf <= '0;
@@ -80,26 +81,26 @@ module deserializer #(
   always_comb 
     begin
       deser_data_o     = '0;
-      deser_data_val_o = 1'b0;
+      deser_data_val_o = 0;
       case ( state )
         IDLE_S: begin
           deser_data_o     = '0;
-          deser_data_val_o = 1'b0;
+          deser_data_val_o = 0;
         end
 
         WORK_S: begin
-          deser_data_val_o = 1'b0;
+          deser_data_val_o = 0;
           deser_data_o     = '0;
         end
 
         DONE_S: begin
-          deser_data_val_o = 1'b1;
+          deser_data_val_o = 1;
           deser_data_o     = data_buf;
         end
 
         default: begin
-          deser_data_o     = '0;
-          deser_data_val_o = 1'b0;
+          deser_data_o     = 'x;
+          deser_data_val_o = 'x;
         end
       endcase
     end
