@@ -1,6 +1,6 @@
 module top_tb;
 
-  parameter NUMBER_OF_TEST_RUNS = 100;
+  parameter NUMBER_OF_TEST_RUNS = 10000;
   parameter DATA_BUS_WIDTH      = 16;
 
   bit                          clk;
@@ -51,7 +51,7 @@ module top_tb;
   function void display_error( input queued_data_t in,  
                                input queued_data_t out
                              );
-    $display( "expected values:%p, result value:%p", in[$:0], out[$:0]);
+    $error( "expected values:%p, result value:%p", in[$:0], out[$:0]);
 
   endfunction
 
