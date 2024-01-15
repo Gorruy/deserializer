@@ -51,7 +51,7 @@ module top_tb;
   function void display_error ( input queued_data_t in,  
                                 input queued_data_t out
                               );
-    $display( "expected values:%p, result value:%p", in, out );
+    $error( "expected values:%p, result value:%p", in, out );
 
   endfunction
 
