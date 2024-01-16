@@ -28,29 +28,28 @@ module deserializer #(
           deser_data_val_o <= 0;
           done_flag        <= 0;
         end
-    end
-
-  always_ff @( posedge clk_i )
-    begin
-      if ( done_flag )
-        begin
-          deser_data_val_o <= 1;
-          deser_data_o     <= data_buf;
-          done_flag        <= 0;
-          data_buf         <= '0;
-        end
-      else if ( data_val_i == 1 )
-        begin
-          if ( counter == 0 )
-            done_flag <= 1;
-          data_buf[counter] <= data_i;
-          counter           <= counter - (COUNTER_SIZE)'(1);
-          deser_data_val_o  <= 0;
-        end
       else
         begin
-          deser_data_o     <= '0;
-          deser_data_val_o <= 0;
+          if ( done_flag )
+            begin
+              deser_data_val_o <= 1;
+              deser_data_o     <= data_buf;
+              done_flag        <= 0;
+              data_buf         <= '0;
+            end
+          else if ( data_val_i == 1 )
+            begin
+              if ( counter == 0 )
+                done_flag <= 1;
+              data_buf[counter] <= data_i;
+              counter           <= counter - (COUNTER_SIZE)'(1);
+              deser_data_val_o  <= 0;
+            end
+          else
+            begin
+              deser_data_o     <= '0;
+              deser_data_val_o <= 0;
+            end
         end
     end
 endmodule
