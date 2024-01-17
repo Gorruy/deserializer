@@ -46,7 +46,7 @@ module top_tb;
 
   mailbox #( queued_data_t ) output_data    = new(1);
   mailbox #( queued_data_t ) input_data     = new(1);
-  mailbox #( queued_data_t ) generated_data = new(1);
+  mailbox #( queued_data_t ) generated_data = new();
 
   function void display_error ( input queued_data_t in,  
                                 input queued_data_t out
@@ -55,18 +55,18 @@ module top_tb;
 
   endfunction
 
-  task raise_transaction_strobe( logic data_to_send ); 
+  task raise_transaction_strobe( logic data_to_send, int no_delay ); 
     
     // data comes at random moment
     int delay;
-    delay = $urandom_range(10, 0);
+    delay = $urandom_range(10, 0) * !no_delay;
     ##(delay);
 
-    data     <= data_to_send;
-    data_val <= 1'b1;
+    data     = data_to_send;
+    data_val = 1'b1;
     ## 1;
-    data     <= '0;
-    data_val <= '0; 
+    data     = '0;
+    data_val = 1'b0; 
 
   endtask
 
@@ -77,31 +77,37 @@ module top_tb;
     queued_data_t i_data;
     queued_data_t o_data;
 
-    input_data.get( i_data );
-    output_data.get( o_data );
-    
-    for ( int i = DATA_BUS_WIDTH; i > 0; i-- ) begin
-      if ( i_data[i - 1] != o_data[i - 1] )
-        begin
-          display_error( i_data, o_data );
-          test_succeed <= 1'b0;
-          return;
+    repeat (NUMBER_OF_TEST_RUNS)
+      begin
+        input_data.get( i_data );
+        output_data.get( o_data );
+        
+        for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
+          if ( i_data[i] !== o_data[DATA_BUS_WIDTH - 1 - i] )
+            begin
+              display_error( i_data, o_data );
+              test_succeed = 1'b0;
+              return;
+            end
         end
-    end
+      end
     
   endtask
 
-  task generate_transaction ( mailbox #( queued_data_t ) generated_data );
+  task generate_transactions ( mailbox #( queued_data_t ) generated_data );
     
     queued_data_t data_to_send;
 
-    data_to_send = {};
+    repeat (NUMBER_OF_TEST_RUNS) 
+      begin
+        data_to_send = {};
 
-    for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
-      data_to_send.push_back( $urandom_range( 1, 0 ) );
-    end
+        for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
+          data_to_send.push_back( $urandom_range( 1, 0 ) );
+        end
 
-    generated_data.put( data_to_send );
+        generated_data.put( data_to_send );
+      end
 
   endtask
 
@@ -111,16 +117,21 @@ module top_tb;
 
     queued_data_t data_to_send;
     queued_data_t exposed_data;
+    int           no_delay;
 
-    exposed_data = {};
-    generated_data.get( data_to_send );
-    
-    for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
-      raise_transaction_strobe( data_to_send[$] );
-      exposed_data.push_back( data_to_send.pop_back() );
-    end
+    repeat (NUMBER_OF_TEST_RUNS)
+      begin
+        no_delay     = $urandom_range(1, 0);
+        exposed_data = {};
+        generated_data.get( data_to_send );
+        
+        for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
+          raise_transaction_strobe( data_to_send[$], no_delay );
+          exposed_data.push_back( data_to_send.pop_back() );
+        end
 
-    input_data.put( exposed_data );
+        input_data.put( exposed_data );
+      end
 
   endtask
 
@@ -130,36 +141,37 @@ module top_tb;
 
     recieved_data = {};
     
-    wait ( deser_data_val )
-    recieved_data <= { << { deser_data } };
+    repeat (NUMBER_OF_TEST_RUNS)
+      begin
+        @ ( posedge deser_data_val );
+        recieved_data = { << { deser_data } };
 
-    output_data.put(recieved_data);
+        output_data.put(recieved_data);
+      end
 
   endtask
 
   initial begin
     data         <= '0;
-    data_val     <= 0;
-    test_succeed <= 1;
+    data_val     <= 1'b0;
+    test_succeed <= 1'b1;
+
+    generate_transactions( generated_data );
 
     $display("Simulation started!");
     wait( srst_done );
-
-    repeat ( NUMBER_OF_TEST_RUNS )
-    begin
-      fork
-        generate_transaction( generated_data );
-        send_data( input_data, generated_data );
-        read_data( output_data );
-        compare_data( input_data, output_data );
-      join
-    end
+    fork
+      read_data( output_data );
+      compare_data( input_data, output_data );
+      send_data( input_data, generated_data );
+    join
 
     $display("Simulation is over!");
     if ( test_succeed )
       $display("All tests passed!");
     $stop();
   end
+  
 
 
 
