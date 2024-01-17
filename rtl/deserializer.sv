@@ -21,17 +21,25 @@ module deserializer #(
   always_ff @( posedge clk_i )
     begin
       if ( srst_i )
-        data_buf  <= '0;
+        begin
+          data_buf  <= '0;
+          counter   <= '1;
+        end
       else if ( data_val_i )
-        data_buf[counter] <= data_i;   
+        begin
+          data_buf[counter] <= data_i;
+          counter           <= counter - (COUNTER_SIZE)'(1); 
+        end
     end
 
   always_ff @( posedge clk_i )
     begin
       if ( srst_i )
-        counter <= '1;
-      else if ( data_val_i )
-        counter <= counter - (COUNTER_SIZE)'(1);
+        done_flag <= 1'b0;
+      else if ( data_val_i && counter == (COUNTER_SIZE)'(0) )
+        done_flag <= 1'b1;
+      else
+        done_flag <= 1'b0;
     end
 
   always_ff @( posedge clk_i )
@@ -40,7 +48,6 @@ module deserializer #(
         begin
           deser_data_val_o <= 1'b0;
           deser_data_o     <= '0;
-          done_flag        <= 1'b0;
         end
       else
         begin
@@ -48,15 +55,11 @@ module deserializer #(
             begin
               deser_data_val_o <= 1'b1;
               deser_data_o     <= data_buf;
-              done_flag        <= 1'b0;
             end
-          else if ( data_val_i && counter == (COUNTER_SIZE)'(0) )
-            done_flag        <= 1'b1;
           else 
             begin
               deser_data_val_o <= 1'b0;
               deser_data_o     <= '0;
-              done_flag        <= 1'b0;
             end
         end
     end

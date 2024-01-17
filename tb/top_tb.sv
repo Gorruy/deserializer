@@ -81,6 +81,13 @@ module top_tb;
       begin
         input_data.get( i_data );
         output_data.get( o_data );
+
+        if ( i_data.size() != o_data.size() )
+          begin
+            display_error( i_data, o_data );
+            test_succeed = 1'b0;
+            return;
+          end
         
         for ( int i = 0; i < DATA_BUS_WIDTH; i++ ) begin
           if ( i_data[i] !== o_data[DATA_BUS_WIDTH - 1 - i] )
@@ -119,7 +126,7 @@ module top_tb;
     queued_data_t exposed_data;
     int           no_delay;
 
-    repeat (NUMBER_OF_TEST_RUNS)
+    while ( generated_data.num() )
       begin
         no_delay     = $urandom_range(1, 0);
         exposed_data = {};
@@ -138,11 +145,10 @@ module top_tb;
   task read_data ( mailbox #( queued_data_t ) output_data );
     
     queued_data_t recieved_data;
-
-    recieved_data = {};
     
     repeat (NUMBER_OF_TEST_RUNS)
       begin
+        recieved_data = {};
         @ ( posedge deser_data_val );
         recieved_data = { << { deser_data } };
 
