@@ -23,7 +23,7 @@ module deserializer #(
       if ( srst_i )
         begin
           data_buf  <= '0;
-          counter   <= '1;
+          counter   <= '1; // counter starts with all ones, so first bit is msb
         end
       else if ( data_val_i )
         begin
