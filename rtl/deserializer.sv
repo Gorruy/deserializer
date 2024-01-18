@@ -2,7 +2,8 @@ module deserializer #(
   // This module will collect serial data
   // of data bus size and put it in parallel
   // form with first came bit as MSB
-  parameter DATA_BUS_WIDTH = 16
+  parameter DATA_BUS_WIDTH = 16,
+  parameter COUNTER_SIZE   = $clog2(DATA_BUS_WIDTH)
 )(
   input  logic                        clk_i,
   input  logic                        srst_i,
@@ -13,96 +14,53 @@ module deserializer #(
   output logic                        deser_data_val_o
 );
 
-  enum logic [1:0] { IDLE_S,
-                     WORK_S,
-                     DONE_S,
-                     X='x } state, next_state;
-
+  logic [COUNTER_SIZE - 1:0]   counter;
   logic [DATA_BUS_WIDTH - 1:0] data_buf;
-  integer                      counter;
- 
-  always_ff @( posedge clk_i ) 
+  logic                        done_flag;
+
+  always_ff @( posedge clk_i )
     begin
-      if ( srst_i ) 
-        state <= IDLE_S;
-      else 
-        state <= next_state;
-    end
-
-  always_comb 
-    begin
-      next_state = state;
-      case ( state )
-        IDLE_S: begin
-          if ( data_val_i ) 
-            next_state = WORK_S;
-          else 
-            next_state = IDLE_S;
+      if ( srst_i )
+        begin
+          data_buf  <= '0;
+          counter   <= '1; // counter starts with all ones, so first bit is msb
         end
-
-        WORK_S: begin
-          if ( counter == 0 ) 
-            next_state = DONE_S;
-          else 
-            next_state = WORK_S;
+      else if ( data_val_i )
+        begin
+          data_buf[counter] <= data_i;
+          counter           <= counter - (COUNTER_SIZE)'(1); 
         end
-
-        DONE_S: begin
-          // new input data came at the same moment when we expose data
-          if ( data_val_i )
-            next_state = WORK_S;
-          else
-            next_state = IDLE_S;
-        end
-
-        default: begin
-          next_state = X;
-        end
-      endcase
-    end
-
-  always_ff @( posedge clk_i ) 
-    begin
-      if ( state == IDLE_S && data_val_i == 0 || 
-           counter == 0 )
-        counter <= DATA_BUS_WIDTH - 1;
-      else if ( data_val_i == 1 )
-        counter <= counter - 1;  
     end
 
   always_ff @( posedge clk_i )
     begin
-      if ( data_val_i == 1 && counter >= 0 && counter < DATA_BUS_WIDTH )
-        data_buf[counter] <= data_i;
-      else if ( state == IDLE_S )
-        data_buf <= '0;
+      if ( srst_i )
+        done_flag <= 1'b0;
+      else if ( data_val_i && counter == (COUNTER_SIZE)'(0) )
+        done_flag <= 1'b1;
+      else
+        done_flag <= 1'b0;
     end
 
-  always_comb 
+  always_ff @( posedge clk_i )
     begin
-      deser_data_o     = '0;
-      deser_data_val_o = 0;
-      case ( state )
-        IDLE_S: begin
-          deser_data_o     = '0;
-          deser_data_val_o = 0;
+      if ( srst_i )
+        begin
+          deser_data_val_o <= 1'b0;
+          deser_data_o     <= '0;
         end
-
-        WORK_S: begin
-          deser_data_val_o = 0;
-          deser_data_o     = '0;
+      else
+        begin
+          if ( done_flag )
+            begin
+              deser_data_val_o <= 1'b1;
+              deser_data_o     <= data_buf;
+            end
+          else 
+            begin
+              deser_data_val_o <= 1'b0;
+              deser_data_o     <= '0;
+            end
         end
-
-        DONE_S: begin
-          deser_data_val_o = 1;
-          deser_data_o     = data_buf;
-        end
-
-        default: begin
-          deser_data_o     = 'x;
-          deser_data_val_o = 'x;
-        end
-      endcase
     end
-
 endmodule
