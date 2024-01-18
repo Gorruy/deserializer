@@ -48,8 +48,6 @@ module top_tb;
   mailbox #( queued_data_t ) input_data     = new();
   mailbox #( queued_data_t ) generated_data = new();
 
-  event data_sended;
-
   function void display_error ( input queued_data_t in,  
                                 input queued_data_t out
                               );
