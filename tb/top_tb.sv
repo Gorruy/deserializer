@@ -44,8 +44,8 @@ module top_tb;
 
   typedef logic queued_data_t[$:DATA_BUS_WIDTH - 1];
 
-  mailbox #( queued_data_t ) output_data    = new(1);
-  mailbox #( queued_data_t ) input_data     = new(1);
+  mailbox #( queued_data_t ) output_data    = new();
+  mailbox #( queued_data_t ) input_data     = new();
   mailbox #( queued_data_t ) generated_data = new();
 
   event data_sended;
@@ -61,6 +61,7 @@ module top_tb;
     
     // data comes at random moment
     int delay;
+
     delay = $urandom_range(10, 0) * !no_delay;
     ##(delay);
 
@@ -79,7 +80,14 @@ module top_tb;
     queued_data_t i_data;
     queued_data_t o_data;
 
-    repeat (NUMBER_OF_TEST_RUNS)
+    if ( input_data.num() != output_data.num() )
+      begin
+        $error("read and wrote amounts of data is not equal! r:%d, w:%d", output_data.num(), input_data.num() );
+        test_succeed = 1'b0;
+        return;
+      end
+
+    while ( input_data.num() )
       begin
         input_data.get( i_data );
         output_data.get( o_data );
@@ -139,7 +147,6 @@ module top_tb;
           exposed_data.push_back( data_to_send.pop_back() );
         end
 
-        ->data_sended;
         input_data.put( exposed_data );
       end
 
@@ -148,23 +155,26 @@ module top_tb;
   task read_data ( mailbox #( queued_data_t ) output_data );
     
     queued_data_t recieved_data;
+    int           time_without_data;
     
-    repeat (NUMBER_OF_TEST_RUNS)
+    forever
       begin
         recieved_data = {};
 
-        wait ( data_sended.triggered ); // wait for 16-nth bit to arrive
-        ##1;                            // after arrival of last bit wait one clk cycle to read data
+        @( posedge clk );
         if ( deser_data_val === 1'b1 )
-          recieved_data = { << { deser_data } };
+          begin
+            recieved_data     = { << { deser_data } };
+            time_without_data = 0;
+            output_data.put(recieved_data);
+          end
         else
           begin
-            $error("Last bit arrived, but there is no output!");
-            test_succeed = 1'b0;
-            return; 
+            if ( time_without_data == 11*16 )
+              return;
+            else 
+              time_without_data += 1;
           end
-
-        output_data.put(recieved_data);
       end
 
   endtask
@@ -180,10 +190,10 @@ module top_tb;
     wait( srst_done );
     fork
       read_data( output_data );
-      compare_data( input_data, output_data );
       send_data( input_data, generated_data );
     join
 
+    compare_data( input_data, output_data );
     $display("Simulation is over!");
     if ( test_succeed )
       $display("All tests passed!");
