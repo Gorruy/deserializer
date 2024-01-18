@@ -48,6 +48,8 @@ module top_tb;
   mailbox #( queued_data_t ) input_data     = new(1);
   mailbox #( queued_data_t ) generated_data = new();
 
+  event data_sended;
+
   function void display_error ( input queued_data_t in,  
                                 input queued_data_t out
                               );
@@ -128,7 +130,7 @@ module top_tb;
 
     while ( generated_data.num() )
       begin
-        no_delay     = $urandom_range(1, 0);
+        no_delay     = $urandom_range(1, 0); // randomly choose to ran transaction with no delays
         exposed_data = {};
         generated_data.get( data_to_send );
         
@@ -137,6 +139,7 @@ module top_tb;
           exposed_data.push_back( data_to_send.pop_back() );
         end
 
+        ->data_sended;
         input_data.put( exposed_data );
       end
 
@@ -148,9 +151,17 @@ module top_tb;
     
     repeat (NUMBER_OF_TEST_RUNS)
       begin
+        wait ( data_sended.triggered ); // wait for 16-nth bit arrive
         recieved_data = {};
-        @ ( posedge deser_data_val );
-        recieved_data = { << { deser_data } };
+        ##1;                            // after arrival of last bit wait one clk cycle to read data
+        if ( deser_data_val === 1'b1 )
+          recieved_data = { << { deser_data } };
+        else
+          begin
+            $error("Last bit arrived, but there is no output!");
+            test_succeed = 1'b0;
+            return; 
+          end
 
         output_data.put(recieved_data);
       end
