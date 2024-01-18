@@ -151,8 +151,9 @@ module top_tb;
     
     repeat (NUMBER_OF_TEST_RUNS)
       begin
-        wait ( data_sended.triggered ); // wait for 16-nth bit to arrive
         recieved_data = {};
+
+        wait ( data_sended.triggered ); // wait for 16-nth bit to arrive
         ##1;                            // after arrival of last bit wait one clk cycle to read data
         if ( deser_data_val === 1'b1 )
           recieved_data = { << { deser_data } };
