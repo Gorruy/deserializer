@@ -36,7 +36,7 @@ module deserializer #(
     begin
       if ( srst_i )
         done_flag <= 1'b0;
-      else if ( data_val_i && counter == (COUNTER_SIZE)'(0) )
+      else if ( data_val_i && counter == '0 )
         done_flag <= 1'b1;
       else
         done_flag <= 1'b0;
