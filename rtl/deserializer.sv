@@ -48,7 +48,7 @@ module deserializer #(
           if ( data_val_i && counter == DATA_BUS_WIDTH - 1 )
             begin
               deser_data_val_o <= 1'b1;
-              deser_data_o     <= {data_buf[15:1], data_i};
+              deser_data_o     <= {data_buf[DATA_BUS_WIDTH - 1:1], data_i};
             end
           else 
             deser_data_val_o <= 1'b0;

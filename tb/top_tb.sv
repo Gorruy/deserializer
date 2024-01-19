@@ -1,7 +1,7 @@
 module top_tb;
 
   parameter NUMBER_OF_TEST_RUNS = 100;
-  parameter DATA_BUS_WIDTH      = 16;
+  parameter DATA_BUS_WIDTH      = 17;
 
   bit                          clk;
   logic                        srst;
@@ -32,14 +32,14 @@ module top_tb;
     end
 
   deserializer #(
-    .DATA_BUS_WIDTH ( DATA_BUS_WIDTH )
+    .DATA_BUS_WIDTH ( DATA_BUS_WIDTH   )
   ) DUT ( 
-    .clk_i            ( clk              ),
-    .srst_i           ( srst             ),
-    .deser_data_o     ( deser_data       ),
-    .deser_data_val_o ( deser_data_val   ),
-    .data_i           ( data             ),
-    .data_val_i       ( data_val         )
+    .clk_i            ( clk            ),
+    .srst_i           ( srst           ),
+    .deser_data_o     ( deser_data     ),
+    .deser_data_val_o ( deser_data_val ),
+    .data_i           ( data           ),
+    .data_val_i       ( data_val       )
   );
 
   typedef logic queued_data_t[$:DATA_BUS_WIDTH - 1];
@@ -168,7 +168,7 @@ module top_tb;
           end
         else
           begin
-            if ( time_without_data == 11*16 )
+            if ( time_without_data == 11*DATA_BUS_WIDTH )
               return;
             else 
               time_without_data += 1;
