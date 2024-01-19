@@ -33,7 +33,7 @@ module deserializer_top (
     .data_val_i       ( data_val       ),
 
     .deser_data_o     ( deser_data     ),
-    .deser_data_val_o ( deser_data_val ),  
+    .deser_data_val_o ( deser_data_val )  
 );
 
   always_ff @( posedge clk_i )

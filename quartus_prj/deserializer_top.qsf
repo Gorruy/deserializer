@@ -55,7 +55,7 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name VIRTUAL_PIN ON -to srst_i
 set_instance_assignment -name VIRTUAL_PIN ON -to deser_data_val_o
-set_location_assignment PIN_C6 -to clk_i
+set_location_assignment PIN_C5 -to clk_i
 set_instance_assignment -name VIRTUAL_PIN ON -to data_i
 set_instance_assignment -name VIRTUAL_PIN ON -to data_val_i
 set_instance_assignment -name VIRTUAL_PIN ON -to deser_data_o
