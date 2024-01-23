@@ -20,9 +20,7 @@ module deserializer #(
 
   always_ff @( posedge clk_i )
     begin
-      if ( srst_i )
-        data_buf <= '0;
-      else if ( data_val_i )
+      if ( data_val_i )
         data_buf[DATA_BUS_WIDTH - 1 - counter] <= data_i;
     end
 
@@ -39,19 +37,18 @@ module deserializer #(
   always_ff @( posedge clk_i )
     begin
       if ( srst_i )
-        begin
-          deser_data_val_o <= 1'b0;
-          deser_data_o     <= '0;
-        end
+        deser_data_val_o <= 1'b0;
       else
         begin
           if ( data_val_i && counter == DATA_BUS_WIDTH - 1 )
-            begin
-              deser_data_val_o <= 1'b1;
-              deser_data_o     <= {data_buf[DATA_BUS_WIDTH - 1:1], data_i};
-            end
+            deser_data_val_o <= 1'b1;
           else 
             deser_data_val_o <= 1'b0;
         end
+    end
+
+  always_ff @( posedge clk_i )
+    begin
+      deser_data_o <= { data_buf[DATA_BUS_WIDTH - 1:1], data_i };
     end
 endmodule
