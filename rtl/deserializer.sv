@@ -20,8 +20,7 @@ module deserializer #(
 
   always_ff @( posedge clk_i )
     begin
-      if ( data_val_i )
-        data_buf[DATA_BUS_WIDTH - 1 - counter] <= data_i;
+      data_buf[DATA_BUS_WIDTH - 1 - counter] <= data_i;
     end
 
   always_ff @( posedge clk_i )
